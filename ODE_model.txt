@@ -1,0 +1,44 @@
+// HIV NFkB model with explicit TNF, linear and KAP1 dependentTranscriptional Circuit Fragility Influences HIV Proviral Fate
+// Authors: EL Morton, CV Forst, Y Zheng, AB De Paula-Silva, N-GP Ramirez, V Planelles I D'orso
+math main {
+  realDomain t;
+  t.min=0; t.max=2000; t.delta=0.1;
+  real alpha=0.008;
+  real dRNAb=0.006667;
+  real tauRNA=.2071;
+  real muRNA=3.093;
+  real kMm=120;
+  real kSynthH=8.2e-6; 
+  real kSynthV=3.93e-4; 
+  real kDecay=0.0132;
+  real kTrans=0.5412;   // Tat-: kTrans=0
+  real muTat=35.4256;
+  real kMTat=125;
+  real dTat=0.0194;
+  real beta=0.5;
+  real dNFkB=3;
+  real dKAP1=0.006;
+  real rho=0.081;      // KAP1-: rho=0.001
+  real dTNF=1.2e-2;
+  real tat(t);
+  real nfkb(t);
+  real bRNA(t);
+  real mRNA(t);
+  real RNA(t);
+  real KAP1(t);
+  real tnf(t);
+  when (t=t.min) tat=0;
+  when (t=t.min) bRNA=1.2;
+  when (t=t.min) mRNA=0.001;
+  when (t=t.min) nfkb=0;
+  when (t=t.min) KAP1=0.00001;
+  when (t=t.min) tnf=10;
+// ODE
+  RNA = mRNA + bRNA;
+  mRNA:t = tauRNA * KAP1 * nfkb + muRNA * nfkb / (kMm +nfkb) + kSynthH * KAP1 * tat + kSynthV * tat - kDecay * mRNA;
+  tat:t  = kTrans * mRNA + muTat * tat / (kMTat + tat) - dTat * tat;
+  tnf:t  = -dTNF * tnf;
+  nfkb:t = beta * tnf - dNFkB * nfkb;
+  KAP1:t = rho - dKAP1 * KAP1;
+  bRNA:t = alpha - dRNAb * bRNA;
+}
